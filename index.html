@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criador de Cartas Personalizadas</title>
+
+    <!-- CDN do Bootstrap para estilização -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Fontes Cursivas -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Pacifico&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        .card-container {
+            width: 300px;
+            height: 400px;
+            position: relative;
+            margin: auto;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .text-overlay {
+            position: absolute;
+            width: 90%;
+            text-align: center;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-4">
+        <h2 class="mb-3">Criador de Cartas Personalizadas</h2>
+
+        <div class="mb-2">
+            <label class="form-label">Adicione um texto:</label>
+            <input type="text" id="textInput" class="form-control" placeholder="Digite um texto">
+            <button class="btn btn-primary mt-2" onclick="addText()">Adicionar</button>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Escolha uma imagem de fundo:</label>
+            <input type="file" id="bgInput" class="form-control" accept="image/*">
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Escolha a fonte:</label>
+            <select id="fontSelect" class="form-control">
+                <option value="Dancing Script">Dancing Script</option>
+                <option value="Pacifico">Pacifico</option>
+            </select>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Tamanho da Fonte:</label>
+            <input type="number" id="fontSize" class="form-control" value="24">
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Cor do Texto:</label>
+            <input type="color" id="fontColor" class="form-control">
+        </div>
+
+        <button class="btn btn-success mt-3" onclick="generateCard()">Gerar Carta</button>
+        <button class="btn btn-danger mt-3" onclick="downloadCard()">Baixar Carta</button>
+
+        <div class="card-container mt-4" id="cardContainer">
+            <div class="text-overlay" id="textOverlay"></div>
+        </div>
+    </div>
+
+    <!-- CDN do html2canvas para exportação da imagem -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        let texts = [];
+
+        function addText() {
+            let input = document.getElementById("textInput").value;
+            if (input.trim() !== "") {
+                texts.push(input);
+                document.getElementById("textInput").value = "";
+                alert("Texto adicionado!");
+            }
+        }
+
+        function generateCard() {
+            if (texts.length === 0) {
+                alert("Adicione pelo menos um texto!");
+                return;
+            }
+
+            let selectedText = getRandomText();
+            let textElement = document.getElementById("textOverlay");
+
+            // Definir estilos personalizados
+            let font = document.getElementById("fontSelect").value;
+            let fontSize = document.getElementById("fontSize").value + "px";
+            let fontColor = document.getElementById("fontColor").value;
+
+            textElement.textContent = selectedText;
+            textElement.style.fontFamily = font;
+            textElement.style.fontSize = fontSize;
+            textElement.style.color = fontColor;
+
+            let file = document.getElementById("bgInput").files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById("cardContainer").style.backgroundImage = "url('" + e.target.result + "')";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert("Selecione uma imagem de fundo!");
+            }
+        }
+
+        function getRandomText() {
+            return texts[Math.floor(Math.random() * texts.length)];
+        }
+
+        function downloadCard() {
+            html2canvas(document.getElementById("cardContainer")).then(canvas => {
+                let link = document.createElement("a");
+                link.href = canvas.toDataURL();
+                link.download = "carta-personalizada.png";
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
